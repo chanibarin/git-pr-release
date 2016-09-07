@@ -255,8 +255,14 @@ end.parse!
 
 ### Set up configuration
 
-production_branch  = git_config('branch.production') || 'master'
-staging_branch     = git_config('branch.staging')    || 'staging'
+staging_branch = `git rev-parse --abbrev-ref HEAD`.chomp
+production_branch = git_config("branches.#{staging_branch}")
+production_branch ||= git_config('branches.default')
+
+unless production_branch
+  production_branch  = git_config('branch.production') || 'master'
+  staging_branch     = git_config('branch.staging')    || 'staging'
+end
 
 say "Repository:        #{repository}", :debug
 say "Production branch: #{production_branch}", :debug
